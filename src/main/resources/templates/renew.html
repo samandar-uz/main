@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="uz" class="dark" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>UzHost – Sozlamalar</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#EF4444",
+                    },
+                    fontFamily: {
+                        sans: ["Inter", "system-ui", "sans-serif"],
+                    },
+                },
+            },
+        };
+    </script>
+    <style>
+        .material-icons {
+            font-size: inherit;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Input uchun yangi stil */
+        .form-input {
+            transition: all 0.2s ease;
+        }
+
+        .form-input:focus {
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+        }
+
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            opacity: 1;
+            height: auto;
+            padding: 8px;
+            cursor: pointer;
+        }
+
+    </style>
+</head>
+
+<body class="font-sans bg-white text-gray-900 dark:bg-gray-950 dark:text-gray-100">
+
+<!-- Mobile backdrop -->
+<div id="backdrop" onclick="toggleMobileMenu()" class="fixed inset-0 bg-black/50 z-40 hidden lg:hidden"></div>
+
+<div class="flex min-h-screen">
+
+    <!-- SIDEBAR -->
+    <aside id="sidebar"
+           class="w-64 flex-col border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-6 fixed lg:relative inset-y-0 left-0 z-50 lg:z-auto transition-transform duration-300 -translate-x-full lg:translate-x-0 flex">
+        <button onclick="toggleMobileMenu()"
+                class="lg:hidden absolute top-4 right-4 w-8 h-8 rounded-full border border-gray-200 dark:border-gray-800 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-900">
+            <span class="material-icons text-lg">close</span>
+        </button>
+
+        <div class="mb-8">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-red-600 flex items-center justify-center text-white font-bold text-lg">
+                    U
+                </div>
+                <div>
+                    <p class="font-semibold text-lg">UzHost</p>
+                    <p class="text-sm text-gray-500">Client Panel</p>
+                </div>
+            </div>
+        </div>
+
+        <nav class="flex-1 space-y-2">
+            <a href="/index"
+               class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-900">
+                <span class="material-icons text-xl">dashboard</span>
+                <span>Home</span>
+            </a>
+            <a href="/hosting"
+               class="flex items-center gap-3 px-4 py-3 rounded-lg bg-gray-900 dark:bg-gray-800 text-white">
+                <span class="material-icons text-xl">storage</span>
+                <span>Hosting</span>
+            </a>
+            <a href="/settings"
+               class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-900">
+                <span class="material-icons text-xl">settings</span>
+                <span>Sozlamalar</span>
+            </a>
+        </nav>
+
+    </aside>
+
+    <!-- MAIN -->
+    <main class="flex-1">
+        <!-- HEADER -->
+        <header class="border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-2xl font-bold">Renew</h1>
+                </div>
+
+                <div class="flex items-center gap-4">
+                    <button onclick="toggleProfile()" class="relative">
+                        <div class="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center text-white text-sm font-semibold cursor-pointer hover:bg-gray-600 transition-colors"
+                             th:text="${#strings.substring(user.name, 0, 1).toUpperCase()}">
+                            S
+                        </div>
+                    </button>
+
+                    <button onclick="toggleMobileMenu()"
+                            class="lg:hidden w-10 h-10 rounded-full border border-gray-200 dark:border-gray-800 flex items-center justify-center">
+                        <span class="material-icons text-xl">menu</span>
+                    </button>
+
+                </div>
+            </div>
+        </header>
+       <div id="profileDropdown" class="hidden fixed top-16 right-6 w-72 sm:w-64 max-w-[calc(100vw-3rem)] bg-gray-900 rounded-2xl border border-gray-800 shadow-2xl z-50 overflow-hidden opacity-0 scale-95 transition-all duration-200">
+            <div class="p-6 border-b border-gray-800">
+                <div class="flex items-start gap-3">
+                    <div class="w-14 h-14 rounded-full bg-gray-700 flex items-center justify-center text-white text-xl font-semibold"
+                         th:text="${#strings.substring(user.name, 0, 1).toUpperCase()}">
+                        S
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="font-bold text-base text-white" th:text="${user.name}">Samandar Muhammadiyev</h3>
+                        <p class="text-xs text-gray-400"><span th:text="${user.balance}">2040.00</span> UZS</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-4">
+                <div class="space-y-1 mb-4">
+                    <div class="flex items-center justify-between px-4 py-2 text-sm">
+                        <span class="text-gray-400">Mening profilim</span>
+                        <span class="text-gray-500">(ID: <span th:text="${user.id}">19931</span>)</span>
+                    </div>
+
+                    
+
+                    <div class="flex items-center justify-between px-4 py-2 text-sm">
+                        <span class="text-gray-400">Til</span>
+                        <div class="flex items-center gap-2">
+                            <span class="text-gray-400">O'zbek tili</span>
+                            <span class="text-xl">🇺🇿</span>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+        <div class="flex-1 flex items-center justify-center p-6">
+            <div class="w-full max-w-2xl">
+                <!-- MAIN CARD -->
+                <div class="bg-white dark:bg-gray-900
+            border border-gray-200 dark:border-gray-800
+            rounded-xl overflow-hidden
+            shadow-lg dark:shadow-2xl transition-all duration-300">
+
+
+                    <form th:action="@{/hosting/order/{id}/renew/confirm(id=${order.id})}" method="post" class="p-8">
+                        <!-- DAYS -->
+                        <div class="mb-8">
+                            <label class="block text-sm font-medium mb-3 text-gray-700 dark:text-gray-300">
+                                Necha muddatga uzaytirasiz?
+                                <span class="text-red-500 ml-1">*</span>
+                            </label>
+
+                            <div class="relative">
+                                <label>
+                                    <input
+                                            type="number"
+                                            name="days"
+                                            min="1"
+                                            max="365"
+                                            value="4"
+                                            required
+                                            oninput="limitDays(this)"
+                                            class="form-input w-full px-4 py-3.5 bg-gray-50 dark:bg-gray-900
+                   border border-gray-300 dark:border-gray-700
+                   rounded-lg focus:ring-2 focus:ring-primary/20
+                   focus:border-primary focus:outline-none
+                   text-gray-900 dark:text-gray-100
+                   placeholder:text-gray-400 dark:placeholder:text-gray-600
+                   hover:border-gray-400 dark:hover:border-gray-600
+                   transition-colors duration-200
+                   [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none
+                   [&::-webkit-inner-spin-button]:appearance-none">
+                                </label>
+                            </div>
+
+
+                            <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                                1 dan 365 kun oralig'ida kiriting
+                            </p>
+                        </div>
+
+                        <!-- SUMMARY -->
+                        <div class="mb-8 p-5 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800">
+                            <div class="flex justify-between text-sm mb-2">
+                                <span class="text-gray-600 dark:text-gray-400">Kunlik narx</span>
+                                <span class="font-medium"><span id="daily-price"
+                                                                th:text="${order.tariff.price}">5000</span> so'm</span>
+                            </div>
+                            <div class="flex justify-between text-sm mb-3">
+                                <span class="text-gray-600 dark:text-gray-400">Muddat</span>
+                                <span id="period-display" class="font-medium">4 kun</span>
+                            </div>
+                            <div class="h-px bg-gray-200 dark:bg-gray-800 my-3"></div>
+                            <div class="flex justify-between font-semibold text-lg">
+                                <span class="text-gray-900 dark:text-gray-100">Jami</span>
+                                <span id="total-price" class="text-primary">20 000 so'm</span>
+                            </div>
+                        </div>
+
+                        <!-- ACTIONS -->
+                        <div class="flex gap-3">
+                            <a href="/hosting"
+                               class="flex-1 py-3.5 text-center rounded-lg
+                                      bg-gray-50 dark:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-800
+                                      border border-gray-300 dark:border-gray-700
+                                      text-gray-900 dark:text-gray-100
+                                      font-medium transition-colors duration-200">
+                                Bekor qilish
+                            </a>
+
+                            <button type="submit"
+                                    class="flex-1 py-3.5 rounded-lg bg-primary
+                                           hover:bg-red-600 font-semibold text-white
+                                           transition-colors duration-200
+                                           focus:ring-2 focus:ring-red-500/20 focus:outline-none">
+                                Uzaytirish
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+
+
+    function limitDays(input) {
+        if (input.value > 365) input.value = 365;
+        if (input.value < 1) input.value = 1;
+    }
+
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme === "light") {
+        document.documentElement.classList.remove("dark");
+    }
+
+    function toggleMobileMenu() {
+        const sidebar = document.getElementById('sidebar');
+        const backdrop = document.getElementById('backdrop');
+        const isHidden = sidebar.classList.contains('-translate-x-full');
+
+        if (isHidden) {
+            sidebar.classList.remove('-translate-x-full');
+            backdrop.classList.remove('hidden');
+        } else {
+            sidebar.classList.add('-translate-x-full');
+            backdrop.classList.add('hidden');
+        }
+    }
+
+
+    function updateSummary() {
+        const input = document.querySelector('input[name="days"]');
+        const days = parseInt(input.value);
+        const dailyPrice = parseInt(document.getElementById('daily-price').textContent);
+        document.getElementById('period-display').textContent = days + ' kun';
+        const total = days * dailyPrice;
+        document.getElementById('total-price').textContent =
+            total.toLocaleString('uz-UZ') + ' so\'m';
+    }
+
+    document.querySelector('input[name="days"]').addEventListener('input', updateSummary);
+
+    updateSummary();
+    function toggleProfile() {
+        const dropdown = document.getElementById('profileDropdown');
+
+        if (dropdown.classList.contains('hidden')) {
+            dropdown.classList.remove('hidden');
+            setTimeout(() => {
+                dropdown.classList.remove('opacity-0', 'scale-95');
+                dropdown.classList.add('opacity-100', 'scale-100');
+            }, 10);
+        } else {
+            dropdown.classList.remove('opacity-100', 'scale-100');
+            dropdown.classList.add('opacity-0', 'scale-95');
+            setTimeout(() => {
+                dropdown.classList.add('hidden');
+            }, 200);
+        }
+    }
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(event) {
+        const dropdown = document.getElementById('profileDropdown');
+        const profileButton = event.target.closest('button[onclick="toggleProfile()"]');
+
+        if (!dropdown.contains(event.target) && !profileButton && !dropdown.classList.contains('hidden')) {
+            dropdown.classList.remove('opacity-100', 'scale-100');
+            dropdown.classList.add('opacity-0', 'scale-95');
+            setTimeout(() => {
+                dropdown.classList.add('hidden');
+            }, 200);
+        }
+    });
+
+</script>
+</body>
+</html>

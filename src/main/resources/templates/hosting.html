@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="uz" class="dark" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>UzHost – Hosting</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#EF4444",
+                    },
+                    fontFamily: {
+                        sans: ["Inter", "system-ui", "sans-serif"],
+                    },
+                },
+            },
+        };
+    </script>
+    <style>
+        .material-icons {
+            font-size: inherit;
+        }
+
+        /* ========= Animation ========= */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-slide-in {
+            animation: slideIn 0.3s ease-out;
+        }
+
+        /* ========= DROPDOWN ========= */
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 0.5rem;
+            min-width: 12rem;
+            border-radius: 0.75rem;
+            background: white;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            z-index: 50;
+            overflow: hidden;
+
+            /* hidden by default */
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.2s ease;
+        }
+
+        .dark .dropdown-menu {
+            background: rgb(17 24 39);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+        }
+
+        .dropdown-menu.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-menu ul {
+            list-style: none;
+            margin: 0;
+            padding: 0.5rem 0;
+        }
+
+        .dropdown-menu a {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.625rem 1rem;
+            font-size: 0.875rem;
+            text-decoration: none;
+            color: rgb(55 65 81);
+            transition: background 0.15s ease;
+        }
+
+        .dark .dropdown-menu a {
+            color: rgb(209 213 219);
+        }
+
+        .dropdown-menu a:hover {
+            background: rgb(243 244 246);
+        }
+
+        .dark .dropdown-menu a:hover {
+            background: rgb(31 41 55);
+        }
+    </style>
+
+</head>
+
+<body class="font-sans bg-white text-gray-900 dark:bg-gray-950 dark:text-gray-100">
+
+<!-- Mobile backdrop -->
+<div id="backdrop" onclick="toggleMobileMenu()" class="fixed inset-0 bg-black/50 z-40 hidden lg:hidden"></div>
+
+<div class="flex min-h-screen">
+
+    <!-- SIDEBAR -->
+    <aside id="sidebar"
+           class="w-64 flex-col border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-6 fixed lg:relative inset-y-0 left-0 z-50 lg:z-auto transition-transform duration-300 -translate-x-full lg:translate-x-0 flex">
+        <button onclick="toggleMobileMenu()"
+                class="lg:hidden absolute top-4 right-4 w-8 h-8 rounded-full border border-gray-200 dark:border-gray-800 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-900">
+            <span class="material-icons text-lg">close</span>
+        </button>
+
+        <div class="mb-8">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-red-600 flex items-center justify-center text-white font-bold text-lg">
+                    U
+                </div>
+                <div>
+                    <p class="font-semibold text-lg">UzHost</p>
+                    <p class="text-sm text-gray-500">Client Panel</p>
+                </div>
+            </div>
+        </div>
+
+        <nav class="flex-1 space-y-2">
+            <a href="/index"
+               class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-900">
+                <span class="material-icons text-xl">dashboard</span>
+                <span>Home</span>
+            </a>
+            <a href="/hosting"
+               class="flex items-center gap-3 px-4 py-3 rounded-lg bg-gray-900 dark:bg-gray-800 text-white">
+                <span class="material-icons text-xl">storage</span>
+                <span>Hosting</span>
+            </a>
+            <a href="/settings"
+               class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-900">
+                <span class="material-icons text-xl">settings</span>
+                <span>Sozlamalar</span>
+            </a>
+        </nav>
+
+
+    </aside>
+
+    <main class="flex-1">
+        <header class="border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-2xl font-bold">Hosting</h1>
+                </div>
+
+                <div class="flex items-center gap-4">
+                    <button onclick="toggleProfile()" class="relative">
+                        <div class="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center text-white text-sm font-semibold cursor-pointer hover:bg-gray-600 transition-colors"
+                             th:text="${#strings.substring(user.name, 0, 1).toUpperCase()}">
+                            S
+                        </div>
+                    </button>
+                    <button onclick="toggleMobileMenu()"
+                            class="lg:hidden w-10 h-10 rounded-full border border-gray-200 dark:border-gray-800 flex items-center justify-center">
+                        <span class="material-icons text-xl">menu</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+        <div id="profileDropdown" class="hidden fixed top-16 right-6 w-72 sm:w-64 max-w-[calc(100vw-3rem)] bg-gray-900 rounded-2xl border border-gray-800 shadow-2xl z-50 overflow-hidden opacity-0 scale-95 transition-all duration-200">
+            <div class="p-6 border-b border-gray-800">
+                <div class="flex items-start gap-3">
+                    <div class="w-14 h-14 rounded-full bg-gray-700 flex items-center justify-center text-white text-xl font-semibold"
+                         th:text="${#strings.substring(user.name, 0, 1).toUpperCase()}">
+                        S
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="font-bold text-base text-white" th:text="${user.name}">Samandar Muhammadiyev</h3>
+                        <p class="text-xs text-gray-400"><span th:text="${user.balance}">2040.00</span> UZS</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-4">
+                <div class="space-y-1 mb-4">
+                    <div class="flex items-center justify-between px-4 py-2 text-sm">
+                        <span class="text-gray-400">Mening profilim</span>
+                        <span class="text-gray-500">(ID: <span th:text="${user.id}">19931</span>)</span>
+                    </div>
+
+                    
+
+                    <div class="flex items-center justify-between px-4 py-2 text-sm">
+                        <span class="text-gray-400">Til</span>
+                        <div class="flex items-center gap-2">
+                            <span class="text-gray-400">O'zbek tili</span>
+                            <span class="text-xl">🇺🇿</span>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+        <div class="p-6">
+
+            <div th:if="${error}"
+                 class="auto-dismiss mb-6 p-4 rounded-xl bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/30 flex items-center gap-3">
+                <span class="w-2 h-2 rounded-full bg-red-500"></span>
+                <p class="text-sm font-medium text-red-700 dark:text-red-400" th:text="${error}">
+                    Xatolik yuz berdi
+                </p>
+            </div>
+            <!--/*@thymesVar id="success" type="templates"*/-->
+            <div th:if="${success}"
+                 class="auto-dismiss mb-6 p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-900/30 flex items-center gap-3">
+                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                <p class="text-sm font-medium text-emerald-700 dark:text-emerald-400" th:text="${success}">
+                    Muvaffaqiyatli bajarildi
+                </p>
+            </div>
+
+            <div class="mb-6 flex gap-2 border-b border-gray-200 dark:border-gray-800">
+                <button onclick="showTab('orders')" id="tab-orders"
+                        class="tab-button px-6 py-3 font-medium text-sm border-b-2 border-primary text-primary">
+                    Mening buyurtmalarim
+                </button>
+                <button onclick="showTab('new')" id="tab-new"
+                        class="tab-button px-6 py-3 font-medium text-sm border-b-2 border-transparent text-gray-500 hover:text-gray-900 dark:hover:text-gray-100">
+                    Yangi buyurtma
+                </button>
+            </div>
+            <div id="content-orders" class="tab-content">
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+
+                    <!-- Active Order Card -->
+                    <div class="flex flex-col p-6 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 transition-all duration-300 animate-slide-in h-full"
+                         th:each="order : ${orders}">
+
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="font-mono text-lg font-semibold text-gray-900 dark:text-white">
+                                        #<span th:text="${order.id}">1</span>
+                                    </span>
+                                    <span th:with="ui=${statusUiMap[order.status]}"
+                                          class="px-3 py-1 rounded-full text-xs font-medium status-badge"
+                                          th:classappend="${ui.bgClass + ' ' + ui.textClass}">
+                                        <span class="inline-block w-1.5 h-1.5 rounded-full mr-1"
+                                              th:classappend="${ui.dotClass}"></span>
+                                        <span th:text="${ui.label}">Faol</span>
+                                    </span>
+                                </div>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">
+                                    Yaratilgan: <span th:text="${#temporals.format(order.createTime, 'dd.MM.yyyy')}"></span>
+                                </p>
+                            </div>
+
+                            <div class="relative flex-shrink-0" th:if="${order.status.name != 'PENDING'}">
+                                <button th:attr="onclick='toggleDropdown(' + ${order.id} + ')'"
+                                        class="w-8 h-8 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center justify-center text-gray-500 transition-colors">
+                                    <span class="material-icons text-xl">more_vert</span>
+                                </button>
+                                <div th:id="'dropdown-' + ${order.id}" class="dropdown-menu">
+                                    <ul>
+
+                                        <li>
+                                            <a th:href="@{/hosting/order/{id}/renew(id=${order.id})}"
+                                               class="flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition">
+                                                <span class="material-icons text-base">autorenew</span>
+                                                <span>Uzaytirish</span>
+                                            </a>
+
+                                        </li>
+
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-3 mb-4 pb-4 border-b border-gray-100 dark:border-gray-800">
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="text-gray-500 dark:text-gray-400">Tarif:</span>
+                                <span class="font-semibold text-gray-900 dark:text-white"
+                                      th:text="${order.tariff.name}">Basic</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-500 dark:text-gray-400">Narx:</span>
+                                <span class="font-bold text-lg text-primary">
+                                    <span th:text="${order.tariff.price}">2.99</span> so'm/kun
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="mb-4 min-h-[60px] flex items-center">
+                            <div class="w-full p-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-900/30"
+                                 th:if="${order.status.name()} == 'ACTIVE'">
+                                <div class="flex items-center gap-2">
+                                    <span class="material-icons text-emerald-600 dark:text-emerald-400 text-lg">check_circle</span>
+                                    <span class="text-sm text-emerald-700 dark:text-emerald-400">
+                                        Keyingi to'lov: <span
+                                            th:text="${#temporals.format(order.endTime, 'dd.MM.yyyy')}">11.01.2026</span>
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="w-full p-3 rounded-lg bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-900/30"
+                                 th:if="${order.status.name()} == 'PENDING'">
+                                <div class="flex items-center gap-2">
+                                    <span class="material-icons text-yellow-600 dark:text-yellow-400 text-lg">schedule</span>
+                                    <span class="text-sm text-yellow-700 dark:text-yellow-400">Server tayyorlanmoqda...</span>
+                                </div>
+                            </div>
+
+                            <div class="w-full p-3 rounded-lg bg-orange-50 dark:bg-orange-950/20 border border-orange-200 dark:border-orange-900/30"
+                                 th:if="${order.status.name()} == 'EXPIRED'">
+                                <div class="flex items-center gap-2">
+                                    <span class="material-icons text-orange-600 dark:text-orange-400 text-lg">error</span>
+                                    <span class="text-sm text-orange-700 dark:text-orange-400">
+                                        Muddati <span th:text="${#temporals.format(order.endTime, 'dd.MM.yyyy')}">11.01.2026</span> da tugagan
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-auto">
+                            <button class="w-full py-3 rounded-lg bg-yellow-500 hover:bg-yellow-600 text-white font-medium text-sm transition-all hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                                    th:if="${order.status.name()} == 'PENDING'"
+                                    disabled>
+                                <span class="flex items-center justify-center gap-2">
+                                    <span class="material-icons text-sm animate-spin">refresh</span>
+                                    Tayyorlanmoqda
+                                </span>
+                            </button>
+
+                            <button th:if="${order.status.name()} == 'ACTIVE'"
+                                    class="w-full py-3 rounded-lg bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-medium text-sm transition-all hover:shadow-lg">
+                                <span class="flex items-center justify-center gap-2">
+                                    <span class="material-icons text-sm">login</span>
+                                    Kirish
+                                </span>
+                            </button>
+
+                            <button th:if="${order.status.name()} == 'EXPIRED'"
+                                    class="w-full py-3 rounded-lg bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white font-medium text-sm transition-all hover:shadow-lg">
+                                <span class="flex items-center justify-center gap-2">
+                                    <span class="material-icons text-sm">restart_alt</span>
+                                    Faollashtirish
+                                </span>
+                            </button>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="mt-6 p-8 rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-700 text-center">
+                    <div class="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mx-auto mb-4">
+                        <span class="material-icons text-3xl text-gray-400">storage</span>
+                    </div>
+                    <h3 class="text-lg font-semibold mb-2">Ko'proq hosting kerakmi?</h3>
+                    <p class="text-sm text-gray-500 mb-4">Yangi hosting buyurtma qiling va bir necha daqiqada ishga
+                        tushiring</p>
+                    <button onclick="showTab('new')"
+                            class="px-6 py-2.5 rounded-lg bg-primary hover:bg-red-600 text-white font-medium text-sm transition">
+                        Yangi buyurtma berish
+                    </button>
+                </div>
+            </div>
+
+            <div id="content-new" class="tab-content hidden">
+                <div class="mb-6">
+                    <h2 class="text-xl font-bold mb-2">Hosting tariflarini tanlang</h2>
+                    <p class="text-sm text-gray-500">O'zingizga mos hosting tarifini tanlang va darhol ishlatishni
+                        boshlang</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+                    <!-- Starter Plan -->
+                    <div class="p-6 rounded-xl border-2 border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900"
+                         th:each="plan : ${plans}">
+                        <h3 class="text-2xl font-bold mb-2" th:text="${plan.name}">Basic</h3>
+                        <div class="mb-6">
+                            <div class="flex items-baseline gap-1">
+                                <span class="text-3xl font-bold" th:text="${plan.price}">2.99</span>
+                                <span class="text-gray-500">so'm</span>
+                            </div>
+                            <p class="text-sm text-gray-500">har kun</p>
+                        </div>
+
+                        <ul class="space-y-3 mb-6">
+                            <li class="flex items-center gap-2 text-sm">
+                                <span class="material-icons text-emerald-500 text-lg">check_circle</span>
+                                <span>Disk hajmi: 5 GB</span>
+                            </li>
+                            <li class="flex items-center gap-2 text-sm">
+                                <span class="material-icons text-emerald-500 text-lg">check_circle</span>
+                                <span>Tezkor xotira: 512 MB</span>
+                            </li>
+                            <li class="flex items-center gap-2 text-sm">
+                                <span class="material-icons text-emerald-500 text-lg">check_circle</span>
+                                <span>Trafik: Cheksiz</span>
+                            </li>
+                            <li class="flex items-center gap-2 text-sm">
+                                <span class="material-icons text-emerald-500 text-lg">check_circle</span>
+                                <span>Domenlar: 1 ta</span>
+                            </li>
+                            <li class="flex items-center gap-2 text-sm">
+                                <span class="material-icons text-emerald-500 text-lg">check_circle</span>
+                                <span>FTP kirish: 2 ta</span>
+                            </li>
+                            <li class="flex items-center gap-2 text-sm">
+                                <span class="material-icons text-emerald-500 text-lg">check_circle</span>
+                                <span>Email: 5 ta</span>
+                            </li>
+                            <li class="flex items-center gap-2 text-sm">
+                                <span class="material-icons text-emerald-500 text-lg">check_circle</span>
+                                <span>Ma'lumotlar bazalari: 2 ta</span>
+                            </li>
+                            <li class="flex items-center gap-2 text-sm">
+                                <span class="material-icons text-emerald-500 text-lg">check_circle</span>
+                                <span>CRON: 5 ta</span>
+                            </li>
+                        </ul>
+
+                        <form th:action="@{/hosting/select}" method="post">
+                            <input type="hidden" name="planId" th:value="${plan.id}">
+                            <button type="submit"
+                                    class="w-full py-3 rounded-lg border-2 border-primary text-primary hover:bg-primary hover:text-white font-semibold text-sm transition">
+                                Tanlash
+                            </button>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<script>
+    /* ========= THEME ========= */
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme === "light") {
+        document.documentElement.classList.remove("dark");
+    }
+
+    /* ========= MOBILE SIDEBAR ========= */
+    function toggleMobileMenu() {
+        const sidebar = document.getElementById("sidebar");
+        const backdrop = document.getElementById("backdrop");
+
+        const hidden = sidebar.classList.contains("-translate-x-full");
+
+        if (hidden) {
+            sidebar.classList.remove("-translate-x-full");
+            backdrop.classList.remove("hidden");
+        } else {
+            sidebar.classList.add("-translate-x-full");
+            backdrop.classList.add("hidden");
+        }
+    }
+
+    /* ========= TABS ========= */
+    function showTab(tab) {
+        document.querySelectorAll(".tab-content").forEach(el => {
+            el.classList.add("hidden");
+        });
+
+        document.querySelectorAll(".tab-button").forEach(btn => {
+            btn.classList.remove("border-primary", "text-primary");
+            btn.classList.add("border-transparent", "text-gray-500");
+        });
+
+        document.getElementById("content-" + tab).classList.remove("hidden");
+
+        const activeBtn = document.getElementById("tab-" + tab);
+        activeBtn.classList.add("border-primary", "text-primary");
+        activeBtn.classList.remove("border-transparent", "text-gray-500");
+    }
+
+    /* ========= DROPDOWN ========= */
+    let currentOpenDropdown = null;
+
+    function toggleDropdown(orderId) {
+        const dropdown = document.getElementById("dropdown-" + orderId);
+
+        if (currentOpenDropdown && currentOpenDropdown !== dropdown) {
+            currentOpenDropdown.classList.remove("active");
+        }
+
+        dropdown.classList.toggle("active");
+        currentOpenDropdown = dropdown.classList.contains("active") ? dropdown : null;
+    }
+
+    document.addEventListener("click", (e) => {
+        if (!e.target.closest(".relative") && currentOpenDropdown) {
+            currentOpenDropdown.classList.remove("active");
+            currentOpenDropdown = null;
+        }
+    });
+
+    /* ========= AUTO DISMISS ALERT ========= */
+    document.addEventListener("DOMContentLoaded", () => {
+        document.querySelectorAll(".auto-dismiss").forEach(alert => {
+            setTimeout(() => {
+                alert.classList.add(
+                    "opacity-0",
+                    "-translate-y-2",
+                    "transition",
+                    "duration-500"
+                );
+                setTimeout(() => alert.remove(), 500);
+            }, 5000);
+        });
+    });
+    function toggleProfile() {
+        const dropdown = document.getElementById('profileDropdown');
+
+        if (dropdown.classList.contains('hidden')) {
+            dropdown.classList.remove('hidden');
+            setTimeout(() => {
+                dropdown.classList.remove('opacity-0', 'scale-95');
+                dropdown.classList.add('opacity-100', 'scale-100');
+            }, 10);
+        } else {
+            dropdown.classList.remove('opacity-100', 'scale-100');
+            dropdown.classList.add('opacity-0', 'scale-95');
+            setTimeout(() => {
+                dropdown.classList.add('hidden');
+            }, 200);
+        }
+    }
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(event) {
+        const dropdown = document.getElementById('profileDropdown');
+        const profileButton = event.target.closest('button[onclick="toggleProfile()"]');
+
+        if (!dropdown.contains(event.target) && !profileButton && !dropdown.classList.contains('hidden')) {
+            dropdown.classList.remove('opacity-100', 'scale-100');
+            dropdown.classList.add('opacity-0', 'scale-95');
+            setTimeout(() => {
+                dropdown.classList.add('hidden');
+            }, 200);
+        }
+    });
+
+</script>
+
+</body>
+</html>
