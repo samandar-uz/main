@@ -79,7 +79,7 @@ public class PageController {
         model.addAttribute("plans",
                 tariffsRepository.findAllByActiveTrue());
         model.addAttribute("orders",
-                ordersRepository.findByUserId(userId));
+                ordersRepository.findByUserIdOrderByCreateTimeDesc(userId));
         model.addAttribute("statusUiMap",
                 OrderStatusUiMapper.MAP);
 

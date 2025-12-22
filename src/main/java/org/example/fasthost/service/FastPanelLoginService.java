@@ -18,7 +18,7 @@ public class FastPanelLoginService {
 
         Map<String, String> body = Map.of(
                 "username", "fastuser",
-                "password", "IwE8CvCFvleNc072"
+                "password", "dUS1pCoLzxhrglST"
         );
 
         HttpHeaders headers = new HttpHeaders();

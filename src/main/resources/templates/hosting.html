@@ -27,7 +27,6 @@
             font-size: inherit;
         }
 
-        /* ========= Animation ========= */
         @keyframes slideIn {
             from {
                 opacity: 0;
@@ -43,7 +42,6 @@
             animation: slideIn 0.3s ease-out;
         }
 
-        /* ========= DROPDOWN ========= */
         .dropdown-menu {
             position: absolute;
             top: 100%;
@@ -55,8 +53,6 @@
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
             z-index: 50;
             overflow: hidden;
-
-            /* hidden by default */
             opacity: 0;
             visibility: hidden;
             transform: translateY(-10px);
@@ -102,13 +98,19 @@
         .dark .dropdown-menu a:hover {
             background: rgb(31 41 55);
         }
-    </style>
 
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .animate-spin {
+            animation: spin 1s linear infinite;
+        }
+    </style>
 </head>
 
 <body class="font-sans bg-white text-gray-900 dark:bg-gray-950 dark:text-gray-100">
 
-<!-- Mobile backdrop -->
 <div id="backdrop" onclick="toggleMobileMenu()" class="fixed inset-0 bg-black/50 z-40 hidden lg:hidden"></div>
 
 <div class="flex min-h-screen">
@@ -150,11 +152,10 @@
                 <span>Sozlamalar</span>
             </a>
         </nav>
-
-
     </aside>
 
     <main class="flex-1">
+        <!-- HEADER -->
         <header class="border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 px-6 py-4">
             <div class="flex items-center justify-between">
                 <div>
@@ -175,6 +176,8 @@
                 </div>
             </div>
         </header>
+
+        <!-- PROFILE DROPDOWN -->
         <div id="profileDropdown" class="hidden fixed top-16 right-6 w-72 sm:w-64 max-w-[calc(100vw-3rem)] bg-gray-900 rounded-2xl border border-gray-800 shadow-2xl z-50 overflow-hidden opacity-0 scale-95 transition-all duration-200">
             <div class="p-6 border-b border-gray-800">
                 <div class="flex items-start gap-3">
@@ -196,8 +199,6 @@
                         <span class="text-gray-500">(ID: <span th:text="${user.id}">19931</span>)</span>
                     </div>
 
-                    
-
                     <div class="flex items-center justify-between px-4 py-2 text-sm">
                         <span class="text-gray-400">Til</span>
                         <div class="flex items-center gap-2">
@@ -206,12 +207,13 @@
                         </div>
                     </div>
                 </div>
-
-
             </div>
         </div>
+
+        <!-- CONTENT -->
         <div class="p-6">
 
+            <!-- ERROR MESSAGE -->
             <div th:if="${error}"
                  class="auto-dismiss mb-6 p-4 rounded-xl bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/30 flex items-center gap-3">
                 <span class="w-2 h-2 rounded-full bg-red-500"></span>
@@ -219,7 +221,8 @@
                     Xatolik yuz berdi
                 </p>
             </div>
-            <!--/*@thymesVar id="success" type="templates"*/-->
+
+            <!-- SUCCESS MESSAGE -->
             <div th:if="${success}"
                  class="auto-dismiss mb-6 p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-900/30 flex items-center gap-3">
                 <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
@@ -228,6 +231,7 @@
                 </p>
             </div>
 
+            <!-- TABS -->
             <div class="mb-6 flex gap-2 border-b border-gray-200 dark:border-gray-800">
                 <button onclick="showTab('orders')" id="tab-orders"
                         class="tab-button px-6 py-3 font-medium text-sm border-b-2 border-primary text-primary">
@@ -238,11 +242,13 @@
                     Yangi buyurtma
                 </button>
             </div>
+
+            <!-- TAB CONTENT: ORDERS -->
             <div id="content-orders" class="tab-content">
 
                 <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
 
-                    <!-- Active Order Card -->
+                    <!-- Order Card -->
                     <div class="flex flex-col p-6 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 transition-all duration-300 animate-slide-in h-full"
                          th:each="order : ${orders}">
 
@@ -261,27 +267,24 @@
                                     </span>
                                 </div>
                                 <p class="text-sm text-gray-500 dark:text-gray-400">
-                                    Yaratilgan: <span th:text="${#temporals.format(order.createTime, 'dd.MM.yyyy')}"></span>
+                                    Yaratilgan: <span th:text="${#temporals.format(order.createTime, 'dd.MM.yyyy')}">01.01.2025</span>
                                 </p>
                             </div>
 
-                            <div class="relative flex-shrink-0" th:if="${order.status.name != 'PENDING'}">
+                            <div class="relative flex-shrink-0" th:if="${order.status.name() != 'PENDING'}">
                                 <button th:attr="onclick='toggleDropdown(' + ${order.id} + ')'"
                                         class="w-8 h-8 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center justify-center text-gray-500 transition-colors">
                                     <span class="material-icons text-xl">more_vert</span>
                                 </button>
                                 <div th:id="'dropdown-' + ${order.id}" class="dropdown-menu">
                                     <ul>
-
                                         <li>
                                             <a th:href="@{/hosting/order/{id}/renew(id=${order.id})}"
                                                class="flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition">
                                                 <span class="material-icons text-base">autorenew</span>
                                                 <span>Uzaytirish</span>
                                             </a>
-
                                         </li>
-
                                     </ul>
                                 </div>
                             </div>
@@ -302,17 +305,32 @@
                         </div>
 
                         <div class="mb-4 min-h-[60px] flex items-center">
-                            <div class="w-full p-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-900/30"
+                            <!-- ACTIVE STATUS -->
+                            <div class="w-full space-y-3"
                                  th:if="${order.status.name()} == 'ACTIVE'">
-                                <div class="flex items-center gap-2">
-                                    <span class="material-icons text-emerald-600 dark:text-emerald-400 text-lg">check_circle</span>
-                                    <span class="text-sm text-emerald-700 dark:text-emerald-400">
-                                        Keyingi to'lov: <span
-                                            th:text="${#temporals.format(order.endTime, 'dd.MM.yyyy')}">11.01.2026</span>
-                                    </span>
+                                <div class="p-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-900/30">
+                                    <div class="flex items-center gap-2">
+                                        <span class="material-icons text-emerald-600 dark:text-emerald-400 text-lg">check_circle</span>
+                                        <span class="text-sm text-emerald-700 dark:text-emerald-400">
+                                            Keyingi to'lov: <span
+                                                th:text="${#temporals.format(order.endTime, 'dd.MM.yyyy')}">11.01.2026</span>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="p-3 rounded-lg bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 space-y-2">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-xs text-gray-500 dark:text-gray-400">Login:</span>
+                                        <span class="text-sm font-mono font-semibold text-gray-900 dark:text-white" th:text="${order.login}">user_12345</span>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-xs text-gray-500 dark:text-gray-400">Parol:</span>
+                                        <span class="text-sm font-mono font-semibold text-gray-900 dark:text-white" th:text="${order.password}">••••••••</span>
+                                    </div>
+
                                 </div>
                             </div>
 
+                            <!-- PENDING STATUS -->
                             <div class="w-full p-3 rounded-lg bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-900/30"
                                  th:if="${order.status.name()} == 'PENDING'">
                                 <div class="flex items-center gap-2">
@@ -321,6 +339,7 @@
                                 </div>
                             </div>
 
+                            <!-- EXPIRED STATUS -->
                             <div class="w-full p-3 rounded-lg bg-orange-50 dark:bg-orange-950/20 border border-orange-200 dark:border-orange-900/30"
                                  th:if="${order.status.name()} == 'EXPIRED'">
                                 <div class="flex items-center gap-2">
@@ -330,9 +349,22 @@
                                     </span>
                                 </div>
                             </div>
+
+                            <!-- FAILED STATUS -->
+                            <div class="w-full p-3 rounded-lg bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/30"
+                                 th:if="${order.status.name()} == 'CANCELED'">
+                                <div class="flex items-center gap-2">
+                                    <span class="material-icons text-red-600 dark:text-red-400 text-lg">cancel</span>
+                                    <span class="text-sm text-red-700 dark:text-red-400">
+                                        Xatolik yuz berdi. Iltimos, qo'llab-quvvatlash bilan bog'laning
+                                    </span>
+                                </div>
+                            </div>
                         </div>
 
+                        <!-- ACTION BUTTONS -->
                         <div class="mt-auto">
+                            <!-- PENDING BUTTON -->
                             <button class="w-full py-3 rounded-lg bg-yellow-500 hover:bg-yellow-600 text-white font-medium text-sm transition-all hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                                     th:if="${order.status.name()} == 'PENDING'"
                                     disabled>
@@ -342,19 +374,34 @@
                                 </span>
                             </button>
 
-                            <button th:if="${order.status.name()} == 'ACTIVE'"
-                                    class="w-full py-3 rounded-lg bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-medium text-sm transition-all hover:shadow-lg">
+                            <!-- ACTIVE BUTTON -->
+                            <a th:if="${order.status.name()} == 'ACTIVE'"
+                               href="https://panel.fasthost.uz:8888/authentication"
+                               target="_blank"
+                               class="block w-full py-3 rounded-lg bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-medium text-sm transition-all hover:shadow-lg text-center">
                                 <span class="flex items-center justify-center gap-2">
                                     <span class="material-icons text-sm">login</span>
                                     Kirish
                                 </span>
-                            </button>
+                            </a>
 
-                            <button th:if="${order.status.name()} == 'EXPIRED'"
-                                    class="w-full py-3 rounded-lg bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white font-medium text-sm transition-all hover:shadow-lg">
+                            <!-- EXPIRED BUTTON -->
+                            <a th:if="${order.status.name()} == 'EXPIRED'"
+                               th:href="@{/hosting/order/{id}/renew(id=${order.id})}"
+                               class="block w-full py-3 rounded-lg bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white font-medium text-sm transition-all hover:shadow-lg text-center">
                                 <span class="flex items-center justify-center gap-2">
                                     <span class="material-icons text-sm">restart_alt</span>
                                     Faollashtirish
+                                </span>
+                            </a>
+
+                            <!-- FAILED BUTTON -->
+                            <button th:if="${order.status.name()} == 'CANCELED'"
+                                    class="w-full py-3 rounded-lg bg-gray-500 text-white font-medium text-sm cursor-not-allowed opacity-50"
+                                    disabled>
+                                <span class="flex items-center justify-center gap-2">
+                                    <span class="material-icons text-sm">support_agent</span>
+                                    Qo'llab-quvvatlash
                                 </span>
                             </button>
                         </div>
@@ -363,13 +410,13 @@
 
                 </div>
 
+                <!-- EMPTY STATE / NEW ORDER CTA -->
                 <div class="mt-6 p-8 rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-700 text-center">
                     <div class="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mx-auto mb-4">
                         <span class="material-icons text-3xl text-gray-400">storage</span>
                     </div>
                     <h3 class="text-lg font-semibold mb-2">Ko'proq hosting kerakmi?</h3>
-                    <p class="text-sm text-gray-500 mb-4">Yangi hosting buyurtma qiling va bir necha daqiqada ishga
-                        tushiring</p>
+                    <p class="text-sm text-gray-500 mb-4">Yangi hosting buyurtma qiling va bir necha daqiqada ishga tushiring</p>
                     <button onclick="showTab('new')"
                             class="px-6 py-2.5 rounded-lg bg-primary hover:bg-red-600 text-white font-medium text-sm transition">
                         Yangi buyurtma berish
@@ -377,17 +424,17 @@
                 </div>
             </div>
 
+            <!-- TAB CONTENT: NEW ORDER -->
             <div id="content-new" class="tab-content hidden">
                 <div class="mb-6">
                     <h2 class="text-xl font-bold mb-2">Hosting tariflarini tanlang</h2>
-                    <p class="text-sm text-gray-500">O'zingizga mos hosting tarifini tanlang va darhol ishlatishni
-                        boshlang</p>
+                    <p class="text-sm text-gray-500">O'zingizga mos hosting tarifini tanlang va darhol ishlatishni boshlang</p>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
-                    <!-- Starter Plan -->
-                    <div class="p-6 rounded-xl border-2 border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900"
+                    <!-- Plan Card -->
+                    <div class="p-6 rounded-xl border-2 border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 hover:border-primary hover:shadow-lg transition-all"
                          th:each="plan : ${plans}">
                         <h3 class="text-2xl font-bold mb-2" th:text="${plan.name}">Basic</h3>
                         <div class="mb-6">
@@ -401,35 +448,36 @@
                         <ul class="space-y-3 mb-6">
                             <li class="flex items-center gap-2 text-sm">
                                 <span class="material-icons text-emerald-500 text-lg">check_circle</span>
-                                <span>Disk hajmi: 5 GB</span>
+                                <span>Disk hajmi: <span th:text="${plan.limitQuota}">1000</span> MB</span>
                             </li>
                             <li class="flex items-center gap-2 text-sm">
                                 <span class="material-icons text-emerald-500 text-lg">check_circle</span>
-                                <span>Tezkor xotira: 512 MB</span>
+                                <span>Tezkor xotira: <span th:text="${plan.limitMemory}">512</span> MB</span>
                             </li>
                             <li class="flex items-center gap-2 text-sm">
                                 <span class="material-icons text-emerald-500 text-lg">check_circle</span>
-                                <span>Trafik: Cheksiz</span>
+                                <span th:if="${plan.unlimitedTraffic}">Trafik: Cheksiz</span>
+                                <span th:unless="${plan.unlimitedTraffic}">Trafik: <span th:text="${plan.trafficLimit}">10</span> GB</span>
                             </li>
                             <li class="flex items-center gap-2 text-sm">
                                 <span class="material-icons text-emerald-500 text-lg">check_circle</span>
-                                <span>Domenlar: 1 ta</span>
+                                <span>Domenlar: <span th:text="${plan.limitDomains}">1</span> ta</span>
                             </li>
                             <li class="flex items-center gap-2 text-sm">
                                 <span class="material-icons text-emerald-500 text-lg">check_circle</span>
-                                <span>FTP kirish: 2 ta</span>
+                                <span>FTP kirish: <span th:text="${plan.limitFtpUsers}">1</span> ta</span>
                             </li>
                             <li class="flex items-center gap-2 text-sm">
                                 <span class="material-icons text-emerald-500 text-lg">check_circle</span>
-                                <span>Email: 5 ta</span>
+                                <span>Email: <span th:text="${plan.limitEmails}">5</span> ta</span>
                             </li>
                             <li class="flex items-center gap-2 text-sm">
                                 <span class="material-icons text-emerald-500 text-lg">check_circle</span>
-                                <span>Ma'lumotlar bazalari: 2 ta</span>
+                                <span>Ma'lumotlar bazalari: <span th:text="${plan.limitDb}">2</span> ta</span>
                             </li>
                             <li class="flex items-center gap-2 text-sm">
                                 <span class="material-icons text-emerald-500 text-lg">check_circle</span>
-                                <span>CRON: 5 ta</span>
+                                <span>CRON: <span th:text="${plan.limitScheduler}">5</span> ta</span>
                             </li>
                         </ul>
 
@@ -511,20 +559,7 @@
         }
     });
 
-    /* ========= AUTO DISMISS ALERT ========= */
-    document.addEventListener("DOMContentLoaded", () => {
-        document.querySelectorAll(".auto-dismiss").forEach(alert => {
-            setTimeout(() => {
-                alert.classList.add(
-                    "opacity-0",
-                    "-translate-y-2",
-                    "transition",
-                    "duration-500"
-                );
-                setTimeout(() => alert.remove(), 500);
-            }, 5000);
-        });
-    });
+    /* ========= PROFILE DROPDOWN ========= */
     function toggleProfile() {
         const dropdown = document.getElementById('profileDropdown');
 
@@ -543,7 +578,7 @@
         }
     }
 
-    // Close dropdown when clicking outside
+    // Close profile dropdown when clicking outside
     document.addEventListener('click', function(event) {
         const dropdown = document.getElementById('profileDropdown');
         const profileButton = event.target.closest('button[onclick="toggleProfile()"]');
@@ -557,6 +592,20 @@
         }
     });
 
+    /* ========= AUTO DISMISS ALERTS ========= */
+    document.addEventListener("DOMContentLoaded", () => {
+        document.querySelectorAll(".auto-dismiss").forEach(alert => {
+            setTimeout(() => {
+                alert.classList.add(
+                    "opacity-0",
+                    "-translate-y-2",
+                    "transition",
+                    "duration-500"
+                );
+                setTimeout(() => alert.remove(), 500);
+            }, 5000);
+        });
+    });
 </script>
 
 </body>

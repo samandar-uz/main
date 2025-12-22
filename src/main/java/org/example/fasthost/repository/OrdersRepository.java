@@ -15,7 +15,8 @@ import java.util.Optional;
 public interface OrdersRepository extends JpaRepository<Orders, Integer> {
 
 
-    List<Orders> findByUserId(Integer userId);
+    List<Orders> findByUserIdOrderByCreateTimeDesc(Integer userId);
+
     long countByUserId(Integer userId);
 
 
