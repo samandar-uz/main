@@ -18,6 +18,9 @@ public interface OrdersRepository extends JpaRepository<Orders, Integer> {
     List<Orders> findByUserIdOrderByCreateTimeDesc(Integer userId);
 
     long countByUserId(Integer userId);
-
+    List<Orders> findByStatusAndEndTimeBefore(
+            OrderStatus status,
+            LocalDateTime time
+    );
 
 }

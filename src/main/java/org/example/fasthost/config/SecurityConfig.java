@@ -43,7 +43,6 @@ public class SecurityConfig {
                                 "/auth/**",
                                 "/home",
                                 "/error",
-
                                 "/favicon.ico",
                                 "/images/**",
                                 "/css/**",

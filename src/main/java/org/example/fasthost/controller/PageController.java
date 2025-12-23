@@ -65,6 +65,11 @@ public class PageController {
         return "index";
     }
 
+    @GetMapping("/pay")
+    public String orders(){
+        return "pay";
+    }
+
     @GetMapping("/hosting")
     public String hosting(
             @ModelAttribute("user") Users user,
@@ -159,6 +164,9 @@ ordersRepository.save(order);
 
         return "redirect:/hosting?success=order_renewed";
     }
+
+
+    
 }
 
 

@@ -56,7 +56,7 @@ public class Orders extends BaseEntity {
             startTime = LocalDateTime.now();
         }
         if (duration_days != null && endTime == null) {
-            endTime = startTime.plusMonths(duration_days);
+            endTime = startTime.plusDays(duration_days);
         }
     }
 }
