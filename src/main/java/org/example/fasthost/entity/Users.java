@@ -31,11 +31,6 @@ public class Users extends BaseEntity {
     @Column(nullable = false)
     private boolean isActive = true;
 
-    @Column(nullable = false)
-    @Builder.Default
-    private boolean tgLogin = false;
-
-    private Long tgId;
 
     @Column(unique = true, nullable = false)
     private String key;

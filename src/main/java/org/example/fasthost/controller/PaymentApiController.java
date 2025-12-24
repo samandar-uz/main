@@ -1,10 +1,7 @@
 package org.example.fasthost.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.example.fasthost.entity.dto.CreatePaymentRequest;
-import org.example.fasthost.entity.dto.PaymentResponse;
 
-import org.example.fasthost.service.PaymentService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
